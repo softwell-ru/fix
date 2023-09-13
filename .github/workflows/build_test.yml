@@ -1,0 +1,38 @@
+name: Build and test
+
+on:
+  pull_request:
+    branches: [dev, release/**]
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "7.0.x"
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+          DOTNET_NOLOGO: true
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
+      - name: Restore dependencies
+        run: dotnet restore --no-cache
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+          DOTNET_NOLOGO: true
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
+      - name: Build
+        run: dotnet build --no-restore
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+          DOTNET_NOLOGO: true
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
+      - name: Run unit tests
+        run: dotnet test --no-build
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+          DOTNET_NOLOGO: true
+          DOTNET_CLI_TELEMETRY_OPTOUT: true

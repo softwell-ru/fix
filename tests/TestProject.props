@@ -1,0 +1,14 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup>
+        <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+        <Using Include="FluentAssertions" />
+        <Using Include="Moq" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0"/>
+        <PackageReference Include="MSTest.TestAdapter" Version="3.0.2"/>
+        <PackageReference Include="JunitXml.TestLogger" Version="3.0.124" />
+        <PackageReference Include="MSTest.TestFramework" Version="3.0.2"/>
+        <PackageReference Include="coverlet.collector" Version="3.2.0"/>
+    </ItemGroup>
+</Project>
