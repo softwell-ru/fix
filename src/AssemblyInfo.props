@@ -5,16 +5,9 @@
         <Authors>$(Company)</Authors>
         <Owners>$(Company)</Owners>
         <Copyright>Copyright (c) SoftWell 1996-$([System.DateTime]::Now.ToString(yyyy))</Copyright>
-        <PackageId Condition="'$(PackageId)' == ''">$(AssemblyName)</PackageId>
-        <PackageIdPrefix Condition="'$(PackageIdPrefix)' == ''"></PackageIdPrefix>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <RepositoryUrl>https://github.com/softwell-ru/dotnet-template</RepositoryUrl>
+        <RepositoryUrl>https://github.com/softwell-ru/fix</RepositoryUrl>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <AnalysisMode>All</AnalysisMode>
-        <NoWarn>CA1014;CA2007;CA1716;CA1032;CA1303;CA1724;CA1812;CA1031;CA1056;CA1054;CA1727;CA1848;CA1707;CA2234;</NoWarn>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(PackageIdPrefix)' != ''">
-        <PackageId>$(PackageIdPrefix).$(PackageId)</PackageId>
-    </PropertyGroup>
+
 </Project>
