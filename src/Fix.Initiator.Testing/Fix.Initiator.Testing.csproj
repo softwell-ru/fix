@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\AssemblyInfo.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>SoftWell.Fix.Initiator.Testing</AssemblyName>
+    <RootNamespace>SoftWell.Fix.Initiator.Testing</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+    <PackageReference Include="Moq" Version="4.18.4"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Fix.Initiator/Fix.Initiator.csproj" />
+  </ItemGroup>
+
+</Project>
