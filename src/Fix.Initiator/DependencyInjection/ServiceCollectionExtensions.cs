@@ -2,6 +2,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QuickFix;
+using QuickFix.Logger;
+using QuickFix.Store;
 using SoftWell.Fix.Initiator;
 
 namespace Microsoft.Extensions.DependencyInjection;
