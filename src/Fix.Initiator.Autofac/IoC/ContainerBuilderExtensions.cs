@@ -1,6 +1,8 @@
 using Autofac.Core;
 using Microsoft.Extensions.Hosting;
 using QuickFix;
+using QuickFix.Logger;
+using QuickFix.Store;
 using SoftWell.Fix.Initiator;
 
 namespace Autofac;

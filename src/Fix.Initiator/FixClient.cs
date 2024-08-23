@@ -156,7 +156,7 @@ public class FixClient : IFixClient, IDisposable
 
     void IApplication.OnCreate(SessionID sessionID)
     {
-        Session = Session.LookupSession(sessionID);
+        Session = Session.LookupSession(sessionID) ?? throw new ArgumentException("Unknown session id", nameof(sessionID));
         _logger.LogTrace("{session}: Session created", sessionID);
     }
 
