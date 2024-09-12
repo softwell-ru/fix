@@ -116,69 +116,6 @@ public class FixClient : IFixClient, IDisposable
     {
         if (message.IsOfType(MsgType.LOGON))
         {
-            if (_attemptToChangePasswordWasMade && IsPasswordChangedLogon(message))
-            {
-                // мы успешно сменили пароль, и теперь в рамках этого запуска все логины (например, при потере связи) 
-                // должны идти с новым паролем
-                _useNewPasswordAsPassword = true;
-                _logger.LogDebug("New password was successfully set: {session}", sessionID);
-            }
-        }
-        else if (message.IsOfType(MsgType.LOGOUT))
-        {
-            if (_attemptToChangePasswordWasMade)
-            {
-                if (IsInvalidPasswordLogout(message))
-                {
-                    // значит, либо нам текущий пароль задали криво, либо мы уже поменяли его на новый, 
-                    // но еще не обновили конфиг,
-                    // и теперь надо использовать новый
-                    _useNewPasswordAsPassword = true;
-                    _logger.LogDebug("{session}: New password could not be set due to invalid old password. Will try to use new password as password", sessionID);
-                }
-                else
-                {
-                    // мало ли, что могло пойти не так. Время позднее, еще что-то. 
-                    // Поэтому если пытались поменять пароль, но нам не сказали "не тот пароль", то будет пытаться еще 
-                    _attemptToChangePasswordWasMade = false;
-                    _logger.LogDebug("{session}: New password could not be set due to unknown reasons. Will try to set new password again", sessionID);
-                }
-            }
-        }
-    }
-
-    void IApplication.FromAdmin(Message message, SessionID sessionID)
-    {
-        ToAdminInner(message, sessionID);
-        _channel.Writer.TryWrite(message);
-    }
-
-    void IApplication.FromApp(Message message, SessionID sessionID)
-    {
-        _channel.Writer.TryWrite(message);
-    }
-
-    void IApplication.OnCreate(SessionID sessionID)
-    {
-        Session = Session.LookupSession(sessionID) ?? throw new ArgumentException("Unknown session id", nameof(sessionID));
-        _logger.LogTrace("{session}: Session created", sessionID);
-    }
-
-    void IApplication.OnLogon(SessionID sessionID)
-    {
-        _logger.LogTrace("{session}: LOGON", sessionID);
-        _isLoggedIn.Set();
-    }
-
-    void IApplication.OnLogout(SessionID sessionID)
-    {
-        _logger.LogTrace("{session}: LOGOUT", sessionID);
-    }
-
-    void IApplication.ToAdmin(Message message, SessionID sessionID)
-    {
-        if (message.IsOfType(MsgType.LOGON))
-        {
             var settings = SessionSettings.Get(sessionID);
 
             var attemptToChangePasswordWasMade = false;
@@ -210,6 +147,70 @@ public class FixClient : IFixClient, IDisposable
 
             _attemptToChangePasswordWasMade = attemptToChangePasswordWasMade;
         }
+    }
+
+    void IApplication.FromAdmin(Message message, SessionID sessionID)
+    {
+        if (message.IsOfType(MsgType.LOGON))
+        {
+            if (_attemptToChangePasswordWasMade && IsPasswordChangedLogon(message))
+            {
+                // мы успешно сменили пароль, и теперь в рамках этого запуска все логины (например, при потере связи) 
+                // должны идти с новым паролем
+                _useNewPasswordAsPassword = true;
+                _logger.LogDebug("New password was successfully set: {session}", sessionID);
+            }
+        }
+        else if (message.IsOfType(MsgType.LOGOUT))
+        {
+            if (_attemptToChangePasswordWasMade)
+            {
+                if (IsInvalidPasswordLogout(message))
+                {
+                    // значит, либо нам текущий пароль задали криво, либо мы уже поменяли его на новый, 
+                    // но еще не обновили конфиг,
+                    // и теперь надо использовать новый
+                    _useNewPasswordAsPassword = true;
+                    _logger.LogDebug("{session}: New password could not be set due to invalid old password. Will try to use new password as password", sessionID);
+                }
+                else
+                {
+                    // мало ли, что могло пойти не так. Время позднее, еще что-то. 
+                    // Поэтому если пытались поменять пароль, но нам не сказали "не тот пароль", то будет пытаться еще 
+                    _attemptToChangePasswordWasMade = false;
+                    _logger.LogDebug("{session}: New password could not be set due to unknown reasons. Will try to set new password again", sessionID);
+                }
+            }
+        }
+
+        _channel.Writer.TryWrite(message);
+    }
+
+    void IApplication.FromApp(Message message, SessionID sessionID)
+    {
+        _channel.Writer.TryWrite(message);
+    }
+
+    void IApplication.OnCreate(SessionID sessionID)
+    {
+        Session = Session.LookupSession(sessionID) ?? throw new ArgumentException("Unknown session id", nameof(sessionID));
+        _logger.LogTrace("{session}: Session created", sessionID);
+    }
+
+    void IApplication.OnLogon(SessionID sessionID)
+    {
+        _logger.LogTrace("{session}: LOGON", sessionID);
+        _isLoggedIn.Set();
+    }
+
+    void IApplication.OnLogout(SessionID sessionID)
+    {
+        _logger.LogTrace("{session}: LOGOUT", sessionID);
+    }
+
+    void IApplication.ToAdmin(Message message, SessionID sessionID)
+    {
+        ToAdminInner(message, sessionID);
     }
 
     void IApplication.ToApp(Message message, SessionID sessionID)
