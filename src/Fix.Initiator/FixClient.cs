@@ -114,11 +114,6 @@ public class FixClient : IFixClient, IDisposable
 
     protected virtual void ToAdminInner(Message message, SessionID sessionID)
     {
-
-    }
-
-    void IApplication.FromAdmin(Message message, SessionID sessionID)
-    {
         if (message.IsOfType(MsgType.LOGON))
         {
             if (_attemptToChangePasswordWasMade && IsPasswordChangedLogon(message))
@@ -150,6 +145,10 @@ public class FixClient : IFixClient, IDisposable
                 }
             }
         }
+    }
+
+    void IApplication.FromAdmin(Message message, SessionID sessionID)
+    {
         ToAdminInner(message, sessionID);
         _channel.Writer.TryWrite(message);
     }
