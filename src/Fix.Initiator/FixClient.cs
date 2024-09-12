@@ -112,6 +112,11 @@ public class FixClient : IFixClient, IDisposable
         return sessionStatus == SessionStatus.SESSION_PASSWORD_CHANGED;
     }
 
+    protected virtual void ToAdminInner(Message message, SessionID sessionID)
+    {
+
+    }
+
     void IApplication.FromAdmin(Message message, SessionID sessionID)
     {
         if (message.IsOfType(MsgType.LOGON))
@@ -145,7 +150,7 @@ public class FixClient : IFixClient, IDisposable
                 }
             }
         }
-
+        ToAdminInner(message, sessionID);
         _channel.Writer.TryWrite(message);
     }
 
