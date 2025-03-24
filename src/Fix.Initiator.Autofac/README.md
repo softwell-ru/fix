@@ -44,7 +44,7 @@ containerBuilder.RegisterFixClientInitiatorStarter<MyFixClient>("Какое-то
 builder.AddCustomFixClient<FixQuoteClient>(
             //Резолвим IMessageStoreFactory, как MemoryStoreFactory работающую внутри памяти.
             ctx => new MemoryStoreFactory(),
-            //Подключаем фабрику serilog. 
+            //Подключаем фабрику логирования microsoft. 
             ctx => new MicrosoftLoggingLogFactory(ctx.Resolve<ILoggerFactory>()),
             //Возвращаем SessionSettings
             GetConfig("fix.quote.cfg")
