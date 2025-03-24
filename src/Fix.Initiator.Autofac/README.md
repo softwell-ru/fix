@@ -35,18 +35,3 @@ containerBuilder.RegisterFixMessagesHandling<MyFixClient>(
 // если инициатор не стартанет, то и сообщений не будет
 containerBuilder.RegisterFixClientInitiatorStarter<MyFixClient>("Какое-то читаемое и понятное имя для логов");
 ```
-
-### Регистрация кастомного клиента 
-
-
-```c#
-    //Пример регистрации кастомного клиента(ВАЖНО!!! В отличие от RegisterFixClientInitiatorStarter, надо самому стартовать клиента)
-builder.AddCustomFixClient<FixQuoteClient>(
-            //Резолвим IMessageStoreFactory, как MemoryStoreFactory работающую внутри памяти.
-            ctx => new MemoryStoreFactory(),
-            //Подключаем фабрику логирования microsoft. 
-            ctx => new MicrosoftLoggingLogFactory(ctx.Resolve<ILoggerFactory>()),
-            //Возвращаем SessionSettings
-            GetConfig("fix.quote.cfg")
-        );
-```

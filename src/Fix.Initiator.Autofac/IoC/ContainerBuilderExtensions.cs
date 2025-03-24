@@ -149,31 +149,4 @@ public static class ContainerBuilderExtensions
 
         return builder;
     }
-
-    public static ContainerBuilder AddCustomFixClient<TFixClient>(
-        this ContainerBuilder builder,
-        Func<IComponentContext, IMessageStoreFactory> messageStoreFactory,
-        Func<IComponentContext, ILogFactory> logFactory,
-        SessionSettings settings,
-        string? nameSettings = null)
-            where TFixClient : IFixClient
-    {
-        ArgumentNullException.ThrowIfNull(builder);
-        ArgumentNullException.ThrowIfNull(messageStoreFactory);
-        ArgumentNullException.ThrowIfNull(logFactory);
-        ArgumentNullException.ThrowIfNull(settings);
-
-        builder.RegisterType<TFixClient>()
-            .WithParameter(new ResolvedParameter(
-                (pi, ctx) => pi.ParameterType == typeof(IMessageStoreFactory),
-                (pi, ctx) => messageStoreFactory(ctx)))
-            .WithParameter(new ResolvedParameter(
-                (pi, ctx) => pi.ParameterType == typeof(ILogFactory),
-                (pi, ctx) => logFactory(ctx)))
-            .WithParameter(nameSettings ?? "sessionSettings", settings)
-            .AsSelf()
-            .SingleInstance();
-
-        return builder;
-    }
 }
