@@ -78,7 +78,7 @@ public static class ContainerBuilderExtensions
     public static ContainerBuilder RegisterFixClientInitiatorStarter<TFixClient>(
         this ContainerBuilder builder,
         string? name = null)
-            where TFixClient : IFixClient
+            where TFixClient : IFixApplication
     {
         ArgumentNullException.ThrowIfNull(builder);
 
@@ -91,7 +91,7 @@ public static class ContainerBuilderExtensions
         this ContainerBuilder builder,
         Func<IComponentContext, TFixClient> resolver,
         string? name = null)
-            where TFixClient : IFixClient
+            where TFixClient : IFixApplication
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(resolver);
@@ -108,7 +108,7 @@ public static class ContainerBuilderExtensions
         Func<IComponentContext, IMessageStoreFactory> messageStoreFactoryFactory,
         Func<IComponentContext, ILogFactory> logFactoryFactory,
         string? name = null)
-            where TFixClient : IFixClient
+            where TFixClient : IFixApplication
     {
         ArgumentNullException.ThrowIfNull(builder);
 
@@ -125,7 +125,7 @@ public static class ContainerBuilderExtensions
         Func<IComponentContext, IMessageStoreFactory> messageStoreFactoryFactory,
         Func<IComponentContext, ILogFactory> logFactoryFactory,
         string? name = null)
-            where TFixClient : IFixClient
+            where TFixClient : IFixApplication
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(resolver);
