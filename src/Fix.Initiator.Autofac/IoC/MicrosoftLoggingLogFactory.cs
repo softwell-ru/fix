@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using Microsoft.Extensions.Logging;
 using QuickFix;
 using QuickFix.Logger;
@@ -9,23 +8,23 @@ public class MicrosoftLoggingLogFactory : ILogFactory
 {
     private readonly ILoggerFactory _loggerFactory;
 
-    private readonly ConnectionTypeEnum _connectionTypeEnum;
+    private readonly ConnectionTypeEnum _connectionType;
 
-    public MicrosoftLoggingLogFactory(ConnectionTypeEnum connectionTypeEnum, ILoggerFactory loggerFactory)
+    public MicrosoftLoggingLogFactory(ConnectionTypeEnum connectionType, ILoggerFactory loggerFactory)
     {
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
-        _connectionTypeEnum = connectionTypeEnum;
+        _connectionType = connectionType;
     }
 
     public ILog Create(SessionID sessionId)
     {
         ArgumentNullException.ThrowIfNull(sessionId);
-        return new Logger(_connectionTypeEnum, _loggerFactory.CreateLogger($"quickfix:{sessionId}"));
+        return new Logger(_connectionType, _loggerFactory.CreateLogger($"quickfix:{sessionId}"));
     }
 
     public ILog CreateNonSessionLog()
     {
-        return new Logger(_connectionTypeEnum, _loggerFactory.CreateLogger($"quickfix:nonsession"));
+        return new Logger(_connectionType, _loggerFactory.CreateLogger($"quickfix:nonsession"));
     }
 
     private sealed class Logger : ILog
@@ -34,14 +33,16 @@ public class MicrosoftLoggingLogFactory : ILogFactory
 
         private const string _passwordTag = "554=";
 
+        private const string _logonTag = "35=A";
+
         private readonly ILogger _logger;
 
-        private readonly ConnectionTypeEnum _connectionTypeEnum;
+        private readonly ConnectionTypeEnum _connectionType;
 
-        public Logger(ConnectionTypeEnum connectionTypeEnum, ILogger logger)
+        public Logger(ConnectionTypeEnum connectionType, ILogger logger)
         {
             _logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-            _connectionTypeEnum = connectionTypeEnum;
+            _connectionType = connectionType;
         }
 
         public void Clear()
@@ -59,22 +60,26 @@ public class MicrosoftLoggingLogFactory : ILogFactory
 
         public void OnIncoming(string msg)
         {
-            if (_connectionTypeEnum == ConnectionTypeEnum.Acceptor)
+            if (_connectionType == ConnectionTypeEnum.Acceptor && NeedHidePassword(msg, out var span))
             {
-                msg = HidePassword(msg);
+                LogTrace("Incoming", HidePassword(new string(msg), span));
             }
-
-            LogTrace("incoming", msg);
+            else
+            {
+                LogTrace("Incoming", msg);
+            }
         }
 
         public void OnOutgoing(string msg)
         {
-            if (_connectionTypeEnum == ConnectionTypeEnum.Initiator)
+            if (_connectionType == ConnectionTypeEnum.Initiator && NeedHidePassword(msg, out var span))
             {
-                msg = HidePassword(msg);
+                LogTrace("Outgoing", HidePassword(new string(msg), span));
             }
-
-            LogTrace("outgoing", msg);
+            else
+            {
+                LogTrace("Outgoing", msg);
+            }
         }
 
         private void LogDebug(string category, string message)
@@ -87,41 +92,58 @@ public class MicrosoftLoggingLogFactory : ILogFactory
             _logger.LogTrace("{fixCategory}: {fixMessageStr}", category, message);
         }
 
-        private string HidePassword(string msg)
+        private string HidePassword(string msg, ReadOnlySpan<char> span)
         {
-            var span = msg.AsSpan();
-
-            // Проверка, что это логон
-            if (span.IndexOf("35=A".AsSpan()) == -1)
-                return msg;
-
             // Удалим теги начиная с конца, чтобы индексы не сбились
             var newPasswordIndex = span.IndexOf(_newPasswordTag.AsSpan());
-            
+
             if (newPasswordIndex != -1)
             {
-                span = RemovePassword(span, newPasswordIndex);
+                msg = HideChars(msg, span, newPasswordIndex, _newPasswordTag);
             }
 
             var passwordIndex = span.IndexOf(_passwordTag.AsSpan());
 
             if (passwordIndex != -1)
             {
-                span = RemovePassword(span, passwordIndex);
+                msg = HideChars(msg, span, passwordIndex, _passwordTag);
             }
 
-            return span.ToString();
+            return msg;
         }
 
-        private string RemovePassword(ReadOnlySpan<char> span, int tagIndex)
+        private string HideChars(string msg, ReadOnlySpan<char> span, int tagIndex, string tag)
         {
-            var valueEndIndex = span.Slice(tagIndex).IndexOf('\x01');
+            var valueStartIndex = tagIndex + tag.Length; // позиция после '554=' или '925='
+            var valueEndRelative = span.Slice(valueStartIndex).IndexOf('\x01');
 
-            if (valueEndIndex == -1)
-                return span[..tagIndex].ToString(); // если нет SOH, обрезаем до тега
+            if (valueEndRelative == -1)
+                return msg; // если нет окончания тега, возвращаем как есть
 
-            valueEndIndex += tagIndex;
-            return string.Concat(span[..tagIndex], span[(valueEndIndex + 1)..]);
+            var valueEndIndex = valueStartIndex + valueEndRelative;
+
+            unsafe
+            {
+                fixed (char* arr = msg)
+                {
+                    for (var i = valueStartIndex; i < valueEndIndex; i++)
+                    {
+                        arr[i] = '*';
+                    }
+                }
+            }
+
+            return msg;
+        }
+
+        private static bool NeedHidePassword(string msg, out ReadOnlySpan<char> span)
+        {
+            span = msg.AsSpan();
+
+            // Проверка, что это логон
+            if (span.IndexOf(_logonTag.AsSpan()) == -1) return false;
+
+            return true;
         }
     }
 }
