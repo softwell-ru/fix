@@ -74,7 +74,7 @@ public abstract class FixClientBase : IFixApplication, IDisposable
 
         if (!logoutMessage.IsSetField(Text.TAG)) return false;
 
-        var text = logoutMessage.GetField(new Text()).getValue();
+        var text = logoutMessage.GetField(new Text()).Value;
 
         return string.Equals(text, "Rejected Logon Attempt: Invalid Username/Password", StringComparison.Ordinal);
     }
@@ -85,7 +85,7 @@ public abstract class FixClientBase : IFixApplication, IDisposable
 
         if (!logonMessage.IsSetField(SessionStatus.TAG)) return false;
 
-        var sessionStatus = logonMessage.GetField(new SessionStatus()).getValue();
+        var sessionStatus = logonMessage.GetField(new SessionStatus()).Value;
 
         return sessionStatus == SessionStatus.SESSION_PASSWORD_CHANGED;
     }

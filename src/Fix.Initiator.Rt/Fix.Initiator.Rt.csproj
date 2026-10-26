@@ -3,7 +3,7 @@
   <Import Project="..\AssemblyInfo.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>SoftWell.Fix.Initiator.Rt</AssemblyName>
     <RootNamespace>SoftWell.Fix.Initiator.Rt</RootNamespace>
