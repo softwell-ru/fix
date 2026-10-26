@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Fix.Initiator.Autofac/Fix.Initiator.Autofac.csproj" />
+    <Project Path="src/Fix.Initiator.Rt/Fix.Initiator.Rt.csproj" />
+    <Project Path="src/Fix.Initiator.Testing/Fix.Initiator.Testing.csproj" />
+    <Project Path="src/Fix.Initiator/Fix.Initiator.csproj" />
+    <Project Path="src/Fix/Fix.csproj" />
+  </Folder>
+</Solution>
